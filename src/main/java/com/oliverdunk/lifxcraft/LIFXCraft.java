@@ -1,5 +1,6 @@
-package com.oliverdunk;
+package com.oliverdunk.lifxcraft;
 
+import com.google.common.collect.Iterables;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -8,29 +9,27 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class LIFXCraft extends JavaPlugin{
 
-    private static LIFXCraft instance;
+    private int lastLevel;
 
     public void onEnable(){
-        instance = this;
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
             public void run() {
-                if(Bukkit.getOnlinePlayers().size() == 0) return;
-                Player player = (Player) Bukkit.getOnlinePlayers().toArray()[0];
+                Iterator<? extends Player> playerIterator = Bukkit.getOnlinePlayers().iterator();
+                if(!playerIterator.hasNext()) return;
+                Player player = playerIterator.next();
                 changeLightLevel(player.getLocation().getBlock().getLightLevel());
             }
         }, 0, 20);
+
         this.getLogger().info("LIFXCraft has been initialized.");
     }
 
-    public static LIFXCraft getInstance(){
-        return instance;
-    }
-
-    int lastLevel = 0;
 
     public void changeLightLevel(int level){
         if(level == lastLevel) return;
@@ -58,8 +57,8 @@ public class LIFXCraft extends JavaPlugin{
             }
 
             socket.close();
-        }catch(Exception ex){
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
